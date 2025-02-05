@@ -55,16 +55,64 @@ def fix_string(string):
     else:
         return string.encode('utf-8')
 
+def formated_string_findAll_element(name):
+    length = len(name)
+    # find all the character that appear
+    # this code assume that the formated string is valid
+    is_element = [ 0 ] * length
+    i = 0
+    while i < length:
+        if name[i] != '%':
+            is_element[i] = 1
+            i += 1
+            continue
+        i += 1
+        assert (i < length) and (name[i] == '{')
+        while (i < length) and (name[i] != '}'):
+            i += 1
+        assert (i < length) and (name[i] == '}')
+        i += 1
+    return is_element
+
+def formated_string_len(name):
+    a = formated_string_findAll_element(name)
+    cnt = 0
+    length = len(name)
+    for i in range(length):
+        if a[i]:
+            cnt += 1
+    return cnt
+
+def resize_formated_string(name, newlength):
+    a = formated_string_findAll_element(name)
+    formated_length = formated_string_len(name)
+    cnt_popback = formated_length - newlength
+
+    i = len(name) - 1
+    while (i >= 0) and (cnt_popback > 0):
+        while (i >= 0) and (a[i] == 0):
+            i -= 1
+        a[i] = 2
+        i -= 1
+        cnt_popback -= 1
+    res = ""
+    for i in range(len(name)):
+        if (a[i] == 0) or (a[i] == 1):
+            res += name[i]
+    return res
 
 def truncate(name, trunclen):
-    if len(name) > trunclen:
-        name = name[:trunclen]
+    if formated_string_len(name) > trunclen:
+        #name = "%{T1}Feryquitous%{T-}: %{T1}Shakah%{T-}"
+        #name = name[:trunclen]
+        #=> name = "%{T1}Feryquitous%{T-}: %{T1}Shakah%"
+        #=> display: Feryquitous%
+        #=> display error (symbol % appear on the display)
+        name = resize_formated_string(name, trunclen)
         name += '...'
         if ('(' in name) and (')' not in name):
             name += ')'
     return name
-
-
 
 # Default parameters
 output = fix_string(u'{play_pause} {artist}: {song}')
