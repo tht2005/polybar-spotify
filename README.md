@@ -11,7 +11,11 @@
 ```ini
 [module/spotify]
 type = custom/script
-exec = python -u /path/to/spotify/script.py -i 668 -s
+
+exec = python -u /path/to/spotify/script.py
+;sliding text feature
+;exec = python -u /path/to/spotify/script.py -i 668 -s
+
 ;important
 tail = true
 
