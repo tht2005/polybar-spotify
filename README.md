@@ -4,7 +4,6 @@
 - Python (2.x or 3.x)
 - Python [`dbus`](https://pypi.org/project/dbus-python/) module
 - Python `gi.repository` module
-- Python [`time`](https://docs.python.org/3/library/time.html) module
 - playerctl
 
 ### Configuration

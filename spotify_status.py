@@ -5,7 +5,6 @@ import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 import sys
-import time
 
 def fix_string(string):
     # corrects encoding for the python version used
