@@ -247,8 +247,10 @@ if __name__ == "__main__":
         argumentParse()
         DBusGMainLoop(set_as_default=True)
         dbusConnect()
+        # Module init
         getProperties()
-        updateLabel()
+        updateLabel(callFromGLib=False)
+        # 
         session_bus.watch_name_owner("org.mpris.MediaPlayer2.spotify", updateOwner)
         spotify_properties.connect_to_signal("PropertiesChanged", updateProperties)
         if slide:
