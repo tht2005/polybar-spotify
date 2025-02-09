@@ -162,7 +162,6 @@ def getProperties():
 
 #signal updateProperties(interface_name, changed_properties, invalidated_properties):
 def updateProperties(*args, **kwargs):
-    print("update properties!")
     (iface, changed_props, invalidated_prop) = args
     assert (iface == "org.mpris.MediaPlayer2.Player")
     global artist, song, album, play_pause_status, displayStringStartPos
