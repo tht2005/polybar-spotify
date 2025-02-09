@@ -21,7 +21,7 @@ slide = None
 append = None 
 
 # D-Bus
-session_bus = None
+session_bus = None 
 spotify_bus = None
 spotify_properties = None
 
@@ -139,10 +139,10 @@ def argumentParse():
 ##########################################
 ### DBus properties changed signal handler
 ##########################################
-# Connect to the session bus
+
+# Connect to the spotify bus
 def dbusConnect():
     global session_bus, spotify_bus, spotify_properties
-    session_bus = dbus.SessionBus()
     spotify_bus = session_bus.get_object(
         'org.mpris.MediaPlayer2.spotify',
         '/org/mpris/MediaPlayer2'
@@ -162,6 +162,7 @@ def getProperties():
 
 #signal updateProperties(interface_name, changed_properties, invalidated_properties):
 def updateProperties(*args, **kwargs):
+    print("update properties!")
     (iface, changed_props, invalidated_prop) = args
     assert (iface == "org.mpris.MediaPlayer2.Player")
     global artist, song, album, play_pause_status, displayStringStartPos
@@ -233,11 +234,16 @@ def updateLabel(*args, **kwargs):
 ##########################################
 def updateOwner(*args, **kwargs):
     (owner, ) = args
-    if not owner:
-        #module disappear
+    if owner:
+        dbusConnect()
+        spotify_properties.connect_to_signal("PropertiesChanged", updateProperties)
+        if slide:
+            GLib.timeout_add(interval, updateLabel)
+        getProperties()
+        updateLabel(callFromGLib=False)
+    else:
+        # print empty string to make module disappear
         print('')
-        #this don't raise SystemExit exception
-        os._exit(os.EX_OK)
 
 ##########################################
 ### Main()
@@ -245,16 +251,10 @@ def updateOwner(*args, **kwargs):
 if __name__ == "__main__":
     try:
         argumentParse()
+        # Setup GLib and DBus
         DBusGMainLoop(set_as_default=True)
-        dbusConnect()
-        # Module init
-        getProperties()
-        updateLabel(callFromGLib=False)
-        # 
+        session_bus = dbus.SessionBus()
         session_bus.watch_name_owner("org.mpris.MediaPlayer2.spotify", updateOwner)
-        spotify_properties.connect_to_signal("PropertiesChanged", updateProperties)
-        if slide:
-            GLib.timeout_add(interval, updateLabel)
         # Loop forever
         loop = GLib.MainLoop()
         loop.run()
