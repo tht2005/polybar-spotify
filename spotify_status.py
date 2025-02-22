@@ -179,18 +179,8 @@ def updateProperties(*args, **kwargs):
 ##########################################
 ### Label updater
 ##########################################
-def updateLabel(*args, **kwargs):
-    # argument reader
-    func_args = {
-        "callFromGLib": True
-    }
-    for key, value in kwargs.items():
-        assert (key in func_args)
-        func_args[key] = value
-
-    # final argument
-    callFromGLib = func_args["callFromGLib"]
-
+continueUpdateLabel = False 
+def updateLabel(callFromGLib=True, *args, **kwargs):
     if (quiet and status == 'Paused') or (not artist and not song and not album):
         print('')
     else:
@@ -225,15 +215,19 @@ def updateLabel(*args, **kwargs):
                                                             else play_pause[1],
                                        label=display))
 
-    # never stop update label
-    return True
+    global continueUpdateLabel
+    if not continueUpdateLabel:
+        print('')
+    return continueUpdateLabel
 
 ##########################################
 ### Spotify on/off
 ##########################################
 def updateOwner(*args, **kwargs):
+    global continueUpdateLabel
     (owner, ) = args
     if owner:
+        continueUpdateLabel = True
         dbusConnect()
         spotify_properties.connect_to_signal("PropertiesChanged", updateProperties)
         if slide:
@@ -241,8 +235,7 @@ def updateOwner(*args, **kwargs):
         getProperties()
         updateLabel(callFromGLib=False)
     else:
-        # print empty string to make module disappear
-        print('')
+        continueUpdateLabel = False
 
 ##########################################
 ### Main()
